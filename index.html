@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Pyrtugues - Programação em Português</title>
+    <meta name="description" content="Aprenda lógica de programação com Python em Português Nativo. O código não trava sua tela!">
+    <meta name="theme-color" content="#0d1117">
+    <link rel="icon" type="image/png" href="assets/logo-pyrtugues.png">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        kivy: {
+                            bg: '#0d1117',       // GitHub Dark bg
+                            panel: '#161b22',    // GitHub Dark panel
+                            editor: '#010409',   // Deepest dark for textareas
+                            border: '#30363d',   // Soft border
+                            text: '#c9d1d9',
+                            code: '#e6edf3',
+                            sec: '#8b949e',
+                            muted: '#484f58',
+                            green: '#2ea043',    // GitHub success green
+                            greenhover: '#238636',
+                            error: '#f85149',
+                            accent: '#58a6ff'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                        mono: ['Fira Code', 'Consolas', 'monospace'],
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(46, 160, 67, 0.4), 0 0 20px rgba(46, 160, 67, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Estilos Globais Fixos para Evitar Fundo Branco */
+        html, body {
+            background-color: #0d1117 !important;
+            color: #c9d1d9 !important;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Scrollbars Customizadas */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #010409; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8b949e; }
+
+        /* Componentes de Painel Dark */
+        .glass-panel {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-base {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .btn-run {
+            background-color: #2ea043;
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-run:hover:not(:disabled) { 
+            background-color: #238636; 
+            transform: translateY(-1px); 
+            box-shadow: 0 0 10px rgba(46, 160, 67, 0.4), 0 0 20px rgba(46, 160, 67, 0.2); 
+        }
+        .btn-run:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-run:active:not(:disabled) { transform: translateY(1px); }
+
+        .btn-stop {
+            background-color: #f85149;
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-stop:hover { background-color: #d13c34; transform: translateY(-1px); box-shadow: 0 0 10px rgba(248, 81, 73, 0.4); }
+
+        .btn-secondary {
+            background-color: #010409;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+        }
+        .btn-secondary:hover { background-color: #30363d; color: #ffffff; }
+
+        /* Textareas */
+        textarea:focus { outline: none; box-shadow: inset 0 0 0 1px #58a6ff; }
+        
+        /* Loading Spinner */
+        .loader {
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .fade-in { animation: fadeIn 0.25s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-[#0d1117] text-[#c9d1d9]">
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-40 shrink-0 bg-[#161b22]">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-br from-kivy-green to-blue-500 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shadow-lg">
+                    <i class="fa-solid fa-code"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-wide text-white hidden sm:block">Pyrtugues <span class="text-xs text-kivy-accent font-normal bg-blue-900/30 px-2 py-0.5 rounded-full ml-1 border border-blue-500/30">Web v2.1</span></h1>
+            </div>
+
+            <!-- Navegação -->
+            <nav class="flex items-center bg-[#010409] p-1 rounded-lg border border-[#30363d]">
+                <button onclick="mudarAba('editor')" id="aba-editor" class="btn-base px-4 py-1.5 rounded-md text-sm bg-[#30363d] text-white shadow-sm">
+                    <i class="fa-solid fa-laptop-code mr-2"></i> Editor
+                </button>
+                <button onclick="mudarAba('exemplos')" id="aba-exemplos" class="btn-base px-4 py-1.5 rounded-md text-sm text-[#8b949e] hover:text-white">
+                    <i class="fa-solid fa-book mr-2"></i> Exemplos
+                </button>
+                <button onclick="mudarAba('sobre')" id="aba-sobre" class="btn-base px-4 py-1.5 rounded-md text-sm text-[#8b949e] hover:text-white">
+                    <i class="fa-solid fa-circle-info mr-2"></i> Sobre
+                </button>
+            </nav>
+
+            <!-- Status de Execução -->
+            <div class="flex items-center space-x-2 bg-[#010409] border border-[#30363d] px-3 py-1.5 rounded-lg">
+                <div id="status-dot" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse shadow-[0_0_8px_rgba(234,179,8,0.6)]"></div>
+                <span id="status-text" class="text-xs font-semibold text-[#8b949e] hidden sm:block">Iniciando Motor...</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col p-2 sm:p-4 max-w-[1600px] mx-auto w-full h-[calc(100vh-3.5rem)] overflow-hidden">
+        
+        <!-- 1. ABA: EDITOR -->
+        <div id="tela-editor" class="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-4 h-full fade-in overflow-hidden">
+            
+            <!-- COLUNA ESQUERDA: Editor em Tela Cheia -->
+            <div class="flex flex-col h-full overflow-hidden">
+                <div class="flex flex-col glass-panel rounded-xl overflow-hidden flex-grow shadow-lg relative group bg-[#161b22]">
+                    <div class="bg-[#161b22] border-b border-[#30363d] px-4 py-2.5 flex items-center justify-between shrink-0">
+                        <span class="text-xs font-bold text-white flex items-center tracking-wide uppercase"><i class="fa-solid fa-file-code text-kivy-green mr-2"></i>Seu Código (.pyrt)</span>
+                        <span class="text-[11px] text-kivy-sec bg-[#010409] px-2 py-0.5 rounded border border-[#30363d]">Português Nativo</span>
+                    </div>
+                    <textarea id="codigo-pyrt" class="flex-grow w-full bg-[#010409] text-kivy-code font-mono text-[14px] p-4 resize-none leading-relaxed" spellcheck="false" placeholder="Escreva aqui seu programa em português...">mostrar("=== BEM-VINDO AO PYRTUGUES ===")
+
+nome = pergunte("Qual é o seu nome? ")
+idade = inteiro(pergunte("Quantos anos você tem? "))
+
+se idade maior ou igual a 12:
+    mostrar(f"Olá, {nome}! Você já pode criar jogos e aplicações incríveis.")
+senão:
+    mostrar(f"Oi, {nome}! Continue praticando lógica de programação!")</textarea>
+                </div>
+            </div>
+
+            <!-- COLUNA DIREITA: Tradução e Terminal -->
+            <div class="flex flex-col gap-4 h-full overflow-hidden">
+                
+                <!-- Tradução Python -->
+                <div class="flex flex-col glass-panel rounded-xl overflow-hidden shrink-0 h-1/3 shadow-lg bg-[#161b22]">
+                    <div class="bg-[#161b22] border-b border-[#30363d] px-4 py-2 flex items-center justify-between shrink-0">
+                        <span class="text-xs font-bold text-white flex items-center tracking-wide uppercase"><i class="fa-brands fa-python text-yellow-400 mr-2"></i>Tradução em Tempo Real (Python)</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="copiarTraducao()" class="text-xs text-[#8b949e] hover:text-white transition flex items-center bg-[#010409] px-2.5 py-1 rounded border border-[#30363d]" title="Copiar código Python"><i class="fa-regular fa-copy mr-1.5"></i>Copiar</button>
+                            <button onclick="baixarPython()" class="text-xs text-[#8b949e] hover:text-white transition flex items-center bg-[#010409] px-2.5 py-1 rounded border border-[#30363d]" title="Baixar como arquivo Python"><i class="fa-solid fa-download mr-1.5"></i>Baixar .py</button>
+                        </div>
+                    </div>
+                    <div class="flex-grow bg-[#010409] relative overflow-auto">
+                        <pre id="codigo-python" class="absolute inset-0 w-full text-[#8b949e] font-mono text-[13px] p-4 whitespace-pre-wrap leading-relaxed select-text"></pre>
+                    </div>
+                </div>
+
+                <!-- Barra de Ações -->
+                <div class="flex space-x-3 shrink-0">
+                    <button id="btn-executar" onclick="iniciarExecucao()" class="btn-base btn-run flex-1 py-2.5 rounded-lg flex items-center justify-center space-x-2 text-sm shadow-lg" disabled>
+                        <div id="executar-spinner" class="loader"></div>
+                        <i id="executar-icone" class="fa-solid fa-play hidden"></i>
+                        <span id="executar-texto">Aguarde Motor...</span>
+                    </button>
+                    <button id="btn-parar" onclick="pararExecucao()" class="btn-base btn-stop flex-1 py-2.5 rounded-lg flex items-center justify-center space-x-2 text-sm shadow-lg hidden">
+                        <i class="fa-solid fa-stop"></i>
+                        <span>Parar Execução</span>
+                    </button>
+                    <button onclick="limparTerminal()" class="btn-base btn-secondary px-4 py-2.5 rounded-lg flex items-center justify-center text-sm shadow-lg group" title="Limpar Terminal">
+                        <i class="fa-solid fa-broom group-hover:rotate-12 transition-transform"></i>
+                    </button>
+                </div>
+
+                <!-- Terminal -->
+                <div class="flex flex-col glass-panel rounded-xl overflow-hidden flex-grow shadow-lg bg-[#161b22]">
+                    <div class="bg-[#161b22] border-b border-[#30363d] px-4 py-2 flex items-center justify-between shrink-0">
+                        <span class="text-xs font-bold text-white flex items-center tracking-wide uppercase"><i class="fa-solid fa-terminal text-kivy-sec mr-2"></i>Saída do Terminal</span>
+                        <span class="text-[10px] text-kivy-sec">Execução Interativa</span>
+                    </div>
+                    <div class="flex-grow bg-[#010409] relative overflow-auto">
+                        <pre id="saida-terminal" class="absolute inset-0 w-full text-kivy-code font-mono text-[13px] p-4 whitespace-pre-wrap leading-relaxed select-text"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Janela de Input (Modal Pop-up Interativo) -->
+        <div id="modal-input" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4 transition-all duration-200">
+            <div class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-2xl border border-[#30363d] bg-[#161b22] transform scale-95 transition-all duration-200" id="modal-input-box">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-kivy-green/20 text-kivy-green flex items-center justify-center text-lg font-bold border border-kivy-green/30">
+                        <i class="fa-solid fa-keyboard"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Entrada Solicitada</h3>
+                        <p class="text-xs text-kivy-sec">O programa está aguardando sua resposta</p>
+                    </div>
+                </div>
+                
+                <label id="modal-prompt-text" class="block text-sm font-medium text-white mb-3 bg-[#010409] p-3 rounded-lg border border-[#30363d] leading-snug">
+                    Digite o valor solicitado:
+                </label>
+                
+                <form onsubmit="confirmarModalInput(event)" class="space-y-4">
+                    <input type="text" id="modal-input-field" class="w-full bg-[#010409] border border-[#30363d] rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-kivy-accent focus:ring-1 focus:ring-kivy-accent transition" placeholder="Sua resposta aqui..." autocomplete="off">
+                    
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="cancelarModalInput()" class="btn-base btn-secondary flex-1 py-2.5 rounded-xl text-sm">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-base btn-run flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center space-x-2">
+                            <span>Enviar</span>
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2. ABA: EXEMPLOS -->
+        <div id="tela-exemplos" class="hidden flex-col h-full overflow-y-auto fade-in max-w-5xl mx-auto w-full py-4 pb-20">
+            <h2 class="text-2xl font-bold mb-2 text-white"><i class="fa-solid fa-book-open text-kivy-accent mr-3"></i>Biblioteca de Exemplos</h2>
+            <p class="text-kivy-sec mb-6 text-sm">Carregue códigos prontos. Quando o programa fizer perguntas (`pergunte`), uma janela abrirá na tela para você responder.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="lista-exemplos">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+
+        <!-- 3. ABA: SOBRE -->
+        <div id="tela-sobre" class="hidden flex-col h-full overflow-y-auto fade-in max-w-3xl mx-auto w-full py-10 pb-20">
+            <div class="glass-panel rounded-2xl p-8 text-center space-y-6 shadow-xl relative overflow-hidden bg-[#161b22]">
+                <div class="w-20 h-20 bg-[#010409] border border-[#30363d] rounded-full flex items-center justify-center text-3xl mx-auto text-white shadow-lg">
+                    <i class="fa-solid fa-rocket text-kivy-accent"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-white">Sobre o Pyrtugues</h2>
+                <div class="text-kivy-sec leading-relaxed text-sm sm:text-base space-y-4 text-left max-w-2xl mx-auto bg-[#010409] p-6 rounded-xl border border-[#30363d]">
+                    <p>O Pyrtugues é uma ferramenta educacional desenvolvida para tornar o aprendizado de lógica de programação acessível e intuitivo através do <strong>português nativo</strong>.</p>
+                    <p>Criado por <strong>Vinicius Caracciolo</strong> (aos 12 anos de idade), o projeto remove a barreira do idioma inglês para jovens iniciantes, mantendo a lógica do Python e utilizando Python como base.</p>
+                    <p class="text-kivy-accent font-semibold"><i class="fa-solid fa-bolt mr-2"></i>Novidades na Versão Web 2.1:</p>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-2">
+                        <li>Janela de popup interativa para a função <code>pergunte()</code>.</li>
+                        <li>Motor Python assíncrono em Web Worker - não trava a tela!</li>
+                        <li>Suporte completo a loops e tratamento de interrupção.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const TRADUCAO = {
+            "senão se": "elif", "senãose": "elif", "senão": "else",
+            "enquanto verdadeiro": "while True", "enquanto": "while",
+            "para cada": "for", "para": "for", "se": "if",
+            "em": "in", "quebrar": "break", "continuar": "continue", "passar": "pass",
+            "com": "with", "como": "as", "finalmente": "finally",
+            "função": "def", "classe": "class",
+            "retornar verdadeiro": "return True", "retornar falso": "return False",
+            "retornar nulo": "return None", "retornar": "return", "produzir": "yield",
+            "assíncrono": "async", "aguardar": "await",
+            "importar": "import", "de": "from",
+            "tentar": "try", "excepto": "except", "levantar": "raise", "lançar": "raise",
+            "afirmar": "assert", "verificar": "assert",
+            "global": "global", "nãolocal": "nonlocal",
+            "verdadeiro": "True", "falso": "False", "nulo": "None", "vazio": "pass", "nada": "None",
+            "e também": "and", "ou então": "or", "não é": "is not", "é": "is", "não": "not",
+            "maior ou igual a": ">=", "menor ou igual a": "<=", "maior ou igual": ">=", "menor ou igual": "<=",
+            "maior que": ">", "menor que": "<", "diferente de": "!=", "igual a": "==",
+            "fora de": "not in", "dentro de": "in",
+            "mais": "+", "menos": "-", "vezes": "*", "dividido por": "/", "resto": "%",
+            "potência": "**", "elevado a": "**",
+            "inteiro": "int", "decimal": "float", "texto": "str", "booleano": "bool",
+            "lista": "list", "dicionário": "dict", "tupla": "tuple", "conjunto": "set",
+            "mostrar": "print", "imprimir": "print", "pergunte": "input", "pergunta": "input",
+            "intervalo": "range", "tamanho": "len", "comprimento": "len", "tipo": "type",
+            "é instância": "isinstance", "é subclasse": "issubclass",
+            "somar": "sum", "máximo": "max", "mínimo": "min", "ordenar": "sorted",
+            "inverter": "reversed", "filtrar": "filter", "mapear": "map", "zipar": "zip",
+            "enumerar": "enumerate", "todos": "all", "algum": "any",
+            "absoluto": "abs", "arredondar": "round", "elevar": "pow",
+            "hexadecimal": "hex", "octal": "oct", "binário": "bin", "ordinal": "ord", "caractere": "chr",
+            "ajuda": "help", "atributos": "vars", "abrir": "open", "formatar": "format", "representar": "repr",
+            "maiúsculas": "upper", "minúsculas": "lower", "capitalizar": "capitalize", "título": "title",
+            "trocar": "replace", "dividir": "split", "juntar": "join", "tirar espaços": "strip",
+            "começa com": "startswith", "termina com": "endswith", "encontrar": "find", "contar": "count",
+            "é dígito": "isdigit", "é letra": "isalpha", "é espaço": "isspace",
+            "adicionar": "append", "estender": "extend", "inserir": "insert", "remover": "remove",
+            "tirar": "pop", "limpar": "clear", "copiar": "copy", "índice": "index",
+            "ordenar em ordem": "sort", "inverter ordem": "reverse",
+            "chaves": "keys", "valores": "values", "itens": "items", "pegar": "get", "atualizar": "update",
+            "matemática": "math", "aleatório": "random", "data e hora": "datetime",
+            "tempo": "time", "sistema": "os", "caminho": "path", "arquivo": "file",
+            "requisição": "request", "resposta": "response", "expressão regular": "re",
+            "mais igual": "+=", "menos igual": "-=", "vezes igual": "*=", "dividido igual": "/=",
+            "resto igual": "%=", "potência igual": "**=", "sair": "exit", "parar": "stop", "iniciar": "start"
+        };
+
+        const METODOS = {
+            "maiúsculas": "upper", "minúsculas": "lower", "capitalizar": "capitalize", "título": "title",
+            "trocar": "replace", "dividir": "split", "juntar": "join", "tirar espaços": "strip",
+            "começa com": "startswith", "termina com": "endswith", "encontrar": "find", "contar": "count",
+            "é dígito": "isdigit", "é letra": "isalpha", "é espaço": "isspace",
+            "adicionar": "append", "estender": "extend", "inserir": "insert", "remover": "remove",
+            "tirar": "pop", "limpar": "clear", "copiar": "copy", "índice": "index",
+            "ordenar em ordem": "sort", "inverter ordem": "reverse",
+            "chaves": "keys", "valores": "values", "itens": "items", "pegar": "get", "atualizar": "update"
+        };
+
+        const MODULOS = {
+            "matemática": "math", "aleatório": "random", "data e hora": "datetime",
+            "tempo": "time", "sistema": "os", "expressão regular": "re"
+        };
+
+        const SKIP_DIRETO = new Set([
+            "e", "ou", "em", "pergunte", "pergunta",
+            ...Object.keys(METODOS), ...Object.keys(MODULOS),
+            "caminho", "arquivo", "requisição", "resposta"
+        ]);
+
+        const CHAVES_ORDENADAS = Object.keys(TRADUCAO).sort((a, b) => b.length - a.length);
+        const IDENT = "A-Za-zÀ-ÿ0-9_";
+
+        function escapeRegExp(text) {
+            return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        }
+
+        function substituirPalavra(texto, original, destino) {
+            const regex = new RegExp(`(?<![${IDENT}])${escapeRegExp(original)}(?![${IDENT}])`, "gi");
+            return texto.replace(regex, () => destino);
+        }
+
+        function traduzirExpressaoFString(expressao) {
+            let t = expressao;
+            const protegidos = [];
+            const proteger = (match) => {
+                protegidos.push(match);
+                return `__PYRT_FEXPR_${protegidos.length - 1}__`;
+            };
+            t = t.replace(/("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g, proteger);
+            t = aplicarTraducoesBase(t);
+            for (let i = 0; i < protegidos.length; i++) t = t.replace(`__PYRT_FEXPR_${i}__`, protegidos[i]);
+            return t;
+        }
+
+        function traduzirFString(match) {
+            const inicio = match.match(/^([rRuUbBfF]{0,2})("""|'''|"|')/);
+            if (!inicio || !inicio[1].toLowerCase().includes("f")) return match;
+            const prefixo = inicio[1];
+            const quote = inicio[2];
+            if (!match.endsWith(quote)) return match;
+            const corpo = match.slice(prefixo.length + quote.length, -quote.length);
+            let resultado = "";
+            let i = 0;
+            while (i < corpo.length) {
+                if (corpo[i] === "{" && corpo[i + 1] === "{") { resultado += "{{"; i += 2; continue; }
+                if (corpo[i] === "}" && corpo[i + 1] === "}") { resultado += "}}"; i += 2; continue; }
+                if (corpo[i] !== "{") { resultado += corpo[i++]; continue; }
+                let profundidade = 1;
+                let j = i + 1;
+                let stringAtual = null;
+                let escape = false;
+                while (j < corpo.length && profundidade > 0) {
+                    const c = corpo[j];
+                    if (stringAtual) {
+                        if (escape) escape = false;
+                        else if (c === "\\") escape = true;
+                        else if (c === stringAtual) stringAtual = null;
+                    } else {
+                        if (c === "\"" || c === "'") stringAtual = c;
+                        else if (c === "{") profundidade++;
+                        else if (c === "}") profundidade--;
+                    }
+                    j++;
+                }
+                if (profundidade !== 0) { resultado += corpo.slice(i); break; }
+                resultado += "{" + traduzirExpressaoFString(corpo.slice(i + 1, j - 1)) + "}";
+                i = j;
+            }
+            return prefixo + quote + resultado + quote;
+        }
+
+        function aplicarTraducoesBase(codigo) {
+            let resultado = codigo;
+            for (const br of CHAVES_ORDENADAS) {
+                if (br === "se") {
+                    resultado = resultado.replace(
+                        /^(\s*)se(?=\s+.+:)/gim,
+                        "$1if"
+                    );
+                    continue;
+                }
+
+                if (SKIP_DIRETO.has(br)) continue;
+
+                if (["mais", "menos", "vezes", "resto", "potência", "é"].includes(br)) {
+                    continue;
+                }
+
+                resultado = substituirPalavra(resultado, br, TRADUCAO[br]);
+            }
+
+            resultado = resultado.replace(/\bfor\s+([A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*)\s+em\b/gi, "for $1 in");
+
+            for (const br of Object.keys(MODULOS).sort((a, b) => b.length - a.length)) {
+                const py = MODULOS[br];
+                resultado = resultado.replace(new RegExp(`\\b(import|from)\\s+${escapeRegExp(br)}\\b`, "gi"), (_m, palavra) => `${palavra} ${py}`);
+                resultado = resultado.replace(new RegExp(`(?<![${IDENT}])${escapeRegExp(br)}(?=\\s*\\.)`, "gi"), py);
+            }
+
+            for (const br of Object.keys(METODOS).sort((a, b) => b.length - a.length)) {
+                resultado = resultado.replace(new RegExp(`(?<=\\.)\\s*${escapeRegExp(br)}(?=\\s*\\()`, "gi"), METODOS[br]);
+            }
+
+            const logico = (palavra, destino) => {
+                resultado = resultado.replace(
+                    new RegExp(`(?<![${IDENT}])([A-Za-zÀ-ÿ0-9_\\]\\)\\}]+)\\s+${palavra}(?=\\s+[A-Za-zÀ-ÿ0-9_\\(\\[\\{+!-])`, "gi"),
+                    `$1 ${destino}`
+                );
+            };
+            logico("e", "and");
+            logico("ou", "or");
+
+            const operadores = { "mais": "+", "menos": "-", "vezes": "*", "resto": "%", "potência": "**" };
+            for (const [br, py] of Object.entries(operadores)) logico(br, py);
+            return resultado;
+        }
+
+        function protegerStringsEComentarios(codigo) {
+            const blocos = [];
+            const guardar = (texto) => { blocos.push(texto); return `__PYRT_PROT_${blocos.length - 1}__`; };
+            const padraoString = /(?<![A-Za-z0-9_])([rRuUbBfF]{0,2})("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g;
+            let protegido = codigo.replace(padraoString, match => guardar(traduzirFString(match)));
+            protegido = protegido.replace(/#[^\n]*/g, guardar);
+            return { protegido, blocos };
+        }
+
+        function restaurarBlocos(codigo, blocos) {
+            let resultado = codigo;
+            for (let i = 0; i < blocos.length; i++) resultado = resultado.replace(`__PYRT_PROT_${i}__`, blocos[i]);
+            return resultado;
+        }
+
+        function obterFuncoes(codigo) {
+            const linhas = codigo.split("\n");
+            const funcoes = new Map();
+            for (let i = 0; i < linhas.length; i++) {
+                const m = linhas[i].match(/^(\s*)(?:async\s+)?def\s+([A-Za-z_À-ÿ][A-Za-zÀ-ÿ0-9_]*)\s*\(/);
+                if (!m) continue;
+                const indent = m[1].length;
+                const corpo = [];
+                for (let j = i + 1; j < linhas.length; j++) {
+                    const linha = linhas[j];
+                    if (!linha.trim()) { corpo.push(linha); continue; }
+                    const n = linha.match(/^\s*/)[0].length;
+                    if (n <= indent) break;
+                    corpo.push(linha);
+                }
+                funcoes.set(m[2], { linhaDef: i, indent, corpo: corpo.join("\n"), async: /^\s*async\s+def\b/.test(linhas[i]) });
+            }
+            return { linhas, funcoes };
+        }
+
+        function aplicarAsyncParaInput(codigo) {
+            const dados = obterFuncoes(codigo);
+            const linhas = dados.linhas;
+            const funcoes = dados.funcoes;
+            const asyncSet = new Set([...funcoes.entries()].filter(([, f]) => f.async).map(([nome]) => nome));
+            for (const [nome, info] of funcoes) if (info.corpo.includes("await _input_async(")) asyncSet.add(nome);
+
+            let mudou = true;
+            while (mudou) {
+                mudou = false;
+                for (const [nome, info] of funcoes) {
+                    if (asyncSet.has(nome)) continue;
+                    for (const outra of asyncSet) {
+                        if (new RegExp(`(?<![A-Za-zÀ-ÿ0-9_.])${escapeRegExp(outra)}\\s*\\(`, "i").test(info.corpo)) {
+                            asyncSet.add(nome); mudou = true; break;
+                        }
+                    }
+                }
+            }
+
+            for (const [nome, info] of funcoes) {
+                if (asyncSet.has(nome) && !/^\s*async\s+def\b/.test(linhas[info.linhaDef])) {
+                    linhas[info.linhaDef] = linhas[info.linhaDef].replace(/^(\s*)def\b/, "$1async def");
+                }
+            }
+
+            for (let i = 0; i < linhas.length; i++) {
+                if (/^\s*(?:async\s+)?def\b/.test(linhas[i])) continue;
+                for (const nome of asyncSet) {
+                    const re = new RegExp(`(?<![A-Za-zÀ-ÿ0-9_.])${escapeRegExp(nome)}(\\s*)\\(`, "gi");
+                    linhas[i] = linhas[i].replace(re, (match, _espacos, offset, linhaAtual) => {
+                        if (/\bawait\s*$/.test(linhaAtual.slice(0, offset))) return match;
+                        return `await ${match}`;
+                    });
+                }
+            }
+            return linhas.join("\n");
+        }
+
+        function traduzirPyrtuguesParaPython(codigo, paraExecucao = true) {
+            if (!codigo || !codigo.trim()) return "";
+            const { protegido: codigoProtegidoInicial, blocos } = protegerStringsEComentarios(codigo);
+            let codigoProtegido = aplicarTraducoesBase(codigoProtegidoInicial);
+            if (paraExecucao) {
+                codigoProtegido = codigoProtegido.replace(/(?<![A-Za-zÀ-ÿ0-9_.])(pergunte|pergunta|input)\s*\(/gi, "await _input_async(");
+                codigoProtegido = aplicarAsyncParaInput(codigoProtegido);
+            } else {
+                codigoProtegido = codigoProtegido.replace(/(?<![A-Za-zÀ-ÿ0-9_.])(pergunte|pergunta)\s*\(/gi, "input(");
+            }
+            return restaurarBlocos(codigoProtegido, blocos);
+        }
+
+        function escapeHTML(texto) {
+            return texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        // Destaque em UMA passada: nunca processa as próprias tags <span>.
+        function highlightPython(codigo) {
+            if (!codigo) return "";
+            const tokenRegex = /(#[^\n]*|"""[\s\S]*?"""|'''[\s\S]*?'''|(?:r|u|b|f|fr|rf|br|rb){0,2}"(?:\\.|[^"\\])*"|(?:r|u|b|f|fr|rf|br|rb){0,2}'(?:\\.|[^'\\])*'|\b(?:def|class|if|elif|else|while|for|in|return|yield|import|from|try|except|finally|pass|break|continue|and|or|not|is|None|True|False|async|await)\b|\b(?:print|len|range|int|float|str|bool|list|dict|set|tuple|type|sum|max|min|round|pow|abs)\b(?=\s*\()|\b\d+(?:\.\d+)?\b)/g;
+            let html = "";
+            let ultimo = 0;
+            let m;
+            while ((m = tokenRegex.exec(codigo)) !== null) {
+                html += escapeHTML(codigo.slice(ultimo, m.index));
+                const token = m[0];
+                const safe = escapeHTML(token);
+                if (token.startsWith("#")) html += `<span class="text-gray-500 italic">${safe}</span>`;
+                else if (/^(?:[rRuUbBfF]{0,2})(?:"|')/.test(token) || /^(?:[rRuUbBfF]{0,2})(?:"""|''')/.test(token)) html += `<span class="text-green-300">${safe}</span>`;
+                else if (/^(?:def|class|if|elif|else|while|for|in|return|yield|import|from|try|except|finally|pass|break|continue|and|or|not|is|None|True|False|async|await)$/.test(token)) html += `<span class="text-blue-400 font-bold">${safe}</span>`;
+                else if (/^(?:print|len|range|int|float|str|bool|list|dict|set|tuple|type|sum|max|min|round|pow|abs)$/.test(token)) html += `<span class="text-yellow-200">${safe}</span>`;
+                else html += `<span class="text-purple-300">${safe}</span>`;
+                ultimo = tokenRegex.lastIndex;
+            }
+            return html + escapeHTML(codigo.slice(ultimo));
+        }
+
+        const pyrtInput = document.getElementById('codigo-pyrt');
+        const pythonOutput = document.getElementById('codigo-python');
+        function atualizarTraducao() {
+            const pyCode = traduzirPyrtuguesParaPython(pyrtInput.value, false);
+            pythonOutput.innerHTML = highlightPython(pyCode) || '<span class="text-gray-600 italic">O código traduzido aparecerá aqui...</span>';
+        }
+        pyrtInput.addEventListener('input', atualizarTraducao);
+
+        let pyodideWorker = null;
+        let workerObjectURL = null;
+        let estaExecutando = false;
+        let motorPronto = false;
+        const saidaTerminalElement = document.getElementById('saida-terminal');
+
+        const workerCode = `
+            importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js");
+            let pyodide = null;
+            let pendingInputResolve = null;
+            self.onmessage = async (event) => {
+                const msg = event.data || {};
+                try {
+                    if (msg.type === 'INIT') {
+                        pyodide = await loadPyodide();
+                        pyodide.setStdout({ batched: (str) => self.postMessage({ type: 'STDOUT', text: String(str) }) });
+                        pyodide.setStderr({ batched: (str) => self.postMessage({ type: 'STDERR', text: String(str) }) });
+                        pyodide.globals.set('_input_async', async (promptText = "") => new Promise((resolve) => {
+                            pendingInputResolve = resolve;
+                            self.postMessage({ type: 'INPUT_REQUEST', prompt: String(promptText) });
+                        }));
+                        self.postMessage({ type: 'INIT_DONE' });
+                    } else if (msg.type === 'RUN') {
+                        if (!pyodide) throw new Error('Motor Python ainda não está pronto.');
+                        await pyodide.runPythonAsync(msg.code);
+                        self.postMessage({ type: 'RUN_DONE' });
+                    } else if (msg.type === 'VALIDATE') {
+                        if (!pyodide) throw new Error('Motor Python ainda não está pronto.');
+                        pyodide.runPython("compile(" + JSON.stringify(msg.code) + ", '<pyrtugues>', 'exec')");
+                        self.postMessage({ type: 'VALIDATE_DONE' });
+                    } else if (msg.type === 'INPUT_RESPONSE') {
+                        if (pendingInputResolve) {
+                            const resolve = pendingInputResolve;
+                            pendingInputResolve = null;
+                            resolve(String(msg.value ?? ''));
+                        }
+                    }
+                } catch (err) {
+                    const texto = err && err.toString ? err.toString() : String(err);
+                    self.postMessage({ type: msg.type === 'INIT' ? 'INIT_ERROR' : (msg.type === 'VALIDATE' ? 'VALIDATE_ERROR' : 'RUN_ERROR'), err: texto });
+                }
+            };
+        `;
+
+        function iniciarWorker() {
+            if (pyodideWorker) pyodideWorker.terminate();
+            if (workerObjectURL) URL.revokeObjectURL(workerObjectURL);
+            pyodideWorker = null; workerObjectURL = null; motorPronto = false;
+            setStatus('Iniciando Motor...', 'yellow', true);
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            workerObjectURL = URL.createObjectURL(blob);
+            pyodideWorker = new Worker(workerObjectURL);
+            pyodideWorker.onerror = function(e) {
+                motorPronto = false; estaExecutando = false; fecharModalInput();
+                setStatus('Erro no Motor', 'red', false);
+                mostrarErroTerminal(`\n❌ Erro no Web Worker:\n${e.message || 'Falha desconhecida.'}\n`);
+                atualizarBotoesExecucao();
+            };
+            pyodideWorker.onmessage = function(e) {
+                const msg = e.data || {};
+                switch (msg.type) {
+                    case 'INIT_DONE':
+                        motorPronto = true; setStatus('Motor Pronto', 'green', false); atualizarBotoesExecucao(); break;
+                    case 'INIT_ERROR':
+                        motorPronto = false; setStatus('Erro no Motor', 'red', false); mostrarErroTerminal(`\n❌ Falha ao carregar o motor Python:\n${msg.err}\n`); atualizarBotoesExecucao(); break;
+                    case 'STDOUT': escreverTerminal(msg.text); break;
+                    case 'STDERR': mostrarErroTerminal(msg.text); break;
+                    case 'INPUT_REQUEST': abrirModalInput(msg.prompt); break;
+                    case 'RUN_DONE': finalizarExecucao('✅ Código finalizado.', false); break;
+                    case 'RUN_ERROR': finalizarExecucao(formatarErroExecucao(msg.err), true); break;
+                    case 'VALIDATE_DONE': concluirDownloadPython(); break;
+                    case 'VALIDATE_ERROR': mostrarErroTerminal(`\n⚠️ O Python gerado possui um erro de sintaxe:\n${msg.err}\n`); concluirDownloadPython(); break;
+                }
+            };
+            pyodideWorker.postMessage({ type: 'INIT' });
+        }
+
+        function abrirModalInput(promptText) {
+            const modal = document.getElementById('modal-input');
+            const inputField = document.getElementById('modal-input-field');
+            document.getElementById('modal-prompt-text').textContent = promptText || 'Digite o valor solicitado:';
+            inputField.value = ''; modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => inputField.focus(), 50);
+        }
+        function fecharModalInput() {
+            const modal = document.getElementById('modal-input');
+            modal.classList.add('hidden'); modal.classList.remove('flex');
+        }
+        function confirmarModalInput(e) {
+            if (e) e.preventDefault();
+            const valor = document.getElementById('modal-input-field').value;
+            fecharModalInput(); escreverTerminal(`> ${valor}\n`);
+            if (pyodideWorker && estaExecutando) pyodideWorker.postMessage({ type: 'INPUT_RESPONSE', value: valor });
+        }
+        function cancelarModalInput() { fecharModalInput(); pararExecucao(); }
+
+        document.addEventListener('keydown', (e) => {
+            const modalAberto = !document.getElementById('modal-input').classList.contains('hidden');
+            if (e.key === 'Escape' && modalAberto) { e.preventDefault(); cancelarModalInput(); }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && document.activeElement === pyrtInput) {
+                e.preventDefault(); if (motorPronto && !estaExecutando) iniciarExecucao();
+            }
+        });
+
+        function atualizarBotoesExecucao() {
+            const btnRun = document.getElementById('btn-executar');
+            const btnStop = document.getElementById('btn-parar');
+            if (estaExecutando) { btnRun.classList.add('hidden'); btnStop.classList.remove('hidden'); }
+            else { btnRun.classList.remove('hidden'); btnStop.classList.add('hidden'); }
+            btnRun.disabled = !motorPronto || estaExecutando;
+        }
+        function setStatus(text, colorType, isSpinning) {
+            const dot = document.getElementById('status-dot');
+            const txt = document.getElementById('status-text');
+            const spinner = document.getElementById('executar-spinner');
+            const icon = document.getElementById('executar-icone');
+            const btnText = document.getElementById('executar-texto');
+            txt.textContent = text;
+            dot.className = 'w-2.5 h-2.5 rounded-full shadow-lg ' + (isSpinning ? 'animate-pulse ' : '');
+            if (colorType === 'yellow') { dot.classList.add('bg-yellow-500'); txt.className = 'text-xs font-semibold hidden sm:block text-yellow-500'; }
+            else if (colorType === 'green') { dot.classList.add('bg-kivy-green'); txt.className = 'text-xs font-semibold hidden sm:block text-kivy-green'; }
+            else { dot.classList.add('bg-kivy-error'); txt.className = 'text-xs font-semibold hidden sm:block text-kivy-error'; }
+            if (isSpinning && colorType === 'yellow') { spinner.classList.remove('hidden'); icon.classList.add('hidden'); btnText.textContent = 'Carregando...'; }
+            else { spinner.classList.add('hidden'); icon.classList.remove('hidden'); btnText.textContent = 'Executar Código'; }
+            atualizarBotoesExecucao();
+        }
+        function formatarErroExecucao(msg) {
+            const linhas = pyrtInput.value.split('\n');
+            const m = String(msg).match(/(?:line|linha)\s+(\d+)/i);
+            if (!m) return `\n❌ Erro de Execução:\n${msg}`;
+            const linha = Number(m[1]);
+            const original = linhas[linha - 1];
+            return original ? `\n❌ Erro na linha ${linha}:\n   ${original}\n\n   Detalhes: ${msg}` : `\n❌ Erro na linha ${linha}:\n${msg}`;
+        }
+        function escreverTerminal(texto, isError = false) {
+            const span = document.createElement('span'); span.textContent = String(texto ?? '');
+            if (isError) span.className = 'text-kivy-error font-semibold';
+            saidaTerminalElement.appendChild(span);
+            saidaTerminalElement.parentElement.scrollTop = saidaTerminalElement.parentElement.scrollHeight;
+        }
+        function mostrarErroTerminal(texto) { escreverTerminal(texto, true); }
+        function limparTerminal() { saidaTerminalElement.innerHTML = ''; escreverTerminal('Terminal limpo. Aguardando execução...\n\n'); }
+        function iniciarExecucao() {
+            if (!pyodideWorker || !motorPronto || estaExecutando) return;
+            const codigoPy = traduzirPyrtuguesParaPython(pyrtInput.value, true);
+            if (!codigoPy.trim()) { mostrarErroTerminal('\n⚠️ Digite algum código antes de executar.\n'); return; }
+            saidaTerminalElement.innerHTML = ''; estaExecutando = true; atualizarBotoesExecucao(); setStatus('Executando...', 'yellow', true);
+            pyodideWorker.postMessage({ type: 'RUN', code: codigoPy });
+        }
+        function finalizarExecucao(msgFinal = null, isError = false) {
+            estaExecutando = false;
+            if (msgFinal) escreverTerminal(msgFinal + '\n', isError);
+            if (motorPronto) setStatus('Motor Pronto', 'green', false); else atualizarBotoesExecucao();
+        }
+        function pararExecucao() {
+            if (!estaExecutando) return;
+            estaExecutando = false; fecharModalInput();
+            if (pyodideWorker) pyodideWorker.terminate();
+            pyodideWorker = null; motorPronto = false;
+            mostrarErroTerminal('\n⚠️ Execução interrompida.\n'); atualizarBotoesExecucao(); iniciarWorker();
+        }
+        function mudarAba(nomeAba) {
+            for (const id of ['tela-editor','tela-exemplos','tela-sobre']) {
+                const el = document.getElementById(id); el.classList.add('hidden'); el.classList.remove('flex');
+                if (id === 'tela-editor') el.classList.remove('grid');
+            }
+            for (const id of ['aba-editor','aba-exemplos','aba-sobre']) document.getElementById(id).className = 'btn-base px-4 py-1.5 rounded-md text-sm text-[#8b949e] hover:text-white transition';
+            const tela = document.getElementById(`tela-${nomeAba}`); if (!tela) return;
+            tela.classList.remove('hidden'); if (nomeAba === 'editor') tela.classList.add('grid'); else tela.classList.add('flex');
+            const btn = document.getElementById(`aba-${nomeAba}`); if (btn) btn.className = 'btn-base px-4 py-1.5 rounded-md text-sm bg-[#30363d] text-white shadow-sm transition';
+        }
+        function copiarTraducao() {
+            const rawPy = traduzirPyrtuguesParaPython(pyrtInput.value, false);
+            if (!navigator.clipboard || !navigator.clipboard.writeText) { mostrarErroTerminal('\n⚠️ O navegador não permitiu copiar automaticamente.\n'); return; }
+            navigator.clipboard.writeText(rawPy).then(() => {
+                const toast = document.createElement('div'); toast.textContent = '✓ Código copiado!'; toast.className = 'fixed bottom-6 right-6 bg-kivy-green text-white font-bold px-4 py-2 rounded-lg shadow-neon z-50 fade-in'; document.body.appendChild(toast);
+                setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2000);
+            }).catch(() => mostrarErroTerminal('\n❌ Não foi possível copiar o código para a área de transferência.\n'));
+        }
+        let downloadPendente = null;
+        function baixarPython() {
+            const rawPy = traduzirPyrtuguesParaPython(pyrtInput.value, false);
+            if (!rawPy.trim()) { mostrarErroTerminal('\n⚠️ Não há código para baixar.\n'); return; }
+            downloadPendente = rawPy;
+            if (pyodideWorker && motorPronto) pyodideWorker.postMessage({ type: 'VALIDATE', code: rawPy }); else concluirDownloadPython();
+        }
+        function concluirDownloadPython() {
+            if (downloadPendente === null) return;
+            const rawPy = downloadPendente; downloadPendente = null;
+            const blob = new Blob([rawPy.endsWith('\n') ? rawPy : rawPy + '\n'], { type: 'text/x-python;charset=utf-8' });
+            const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = 'pyrtugues_codigo.py'; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        const listaExemplos = [
+            { titulo: "Calculadora Simples", codigo: `n1 = decimal(pergunte("Digite o 1º número: "))\nop = pergunte("Operação (+, -, *, /): ")\nn2 = decimal(pergunte("Digite o 2º número: "))\n\nse op == "+":\n    mostrar(n1 + n2)\nsenão se op == "-":\n    mostrar(n1 - n2)\nsenão se op == "*":\n    mostrar(n1 * n2)\nsenão:\n    mostrar(n1 / n2)` },
+            { titulo: "Tabuada Interativa", codigo: `num = inteiro(pergunte("Qual tabuada você quer ver? "))\n\npara i em intervalo(1, 11):\n    mostrar(f"{num} x {i} = {num * i}")` },
+            { titulo: "Contagem Regressiva", codigo: `importar tempo\n\nmostrar("Iniciando contagem...")\npara t em intervalo(5, 0, -1):\n    mostrar(t)\n    tempo.sleep(0.5)\n\nmostrar("Fogo! 🚀")` },
+            { titulo: "Adivinhe o Número", codigo: `importar aleatório\n\nsecreto = aleatório.randint(1, 10)\nmostrar("Pensei em um número de 1 a 10!")\n\nenquanto verdadeiro:\n    chute = inteiro(pergunte("Seu palpite: "))\n    se chute == secreto:\n        mostrar("Parabéns, você acertou! 🎉")\n        quebrar\n    senão se chute > secreto:\n        mostrar("Tente um número menor...")\n    senão:\n        mostrar("Tente um número maior...")` }
+        ];
+        const containerExemplos = document.getElementById('lista-exemplos');
+        listaExemplos.forEach(ex => {
+            const card = document.createElement('div'); card.className = 'glass-panel rounded-xl p-5 flex flex-col space-y-4 hover:border-[#8b949e] transition group cursor-default bg-[#161b22]';
+            const header = document.createElement('div'); header.className = 'flex justify-between items-center';
+            const titulo = document.createElement('h3'); titulo.className = 'font-bold text-lg text-white group-hover:text-kivy-accent transition'; titulo.textContent = ex.titulo; header.appendChild(titulo);
+            const codeBox = document.createElement('div'); codeBox.className = 'bg-[#010409] text-kivy-sec text-xs p-3 rounded-lg overflow-hidden h-28 border border-[#30363d] relative';
+            const pre = document.createElement('pre'); pre.className = 'font-mono whitespace-pre-wrap'; pre.textContent = ex.codigo; codeBox.appendChild(pre);
+            const fade = document.createElement('div'); fade.className = 'absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-[#010409] to-transparent'; codeBox.appendChild(fade);
+            const button = document.createElement('button'); button.type = 'button'; button.className = 'btn-base btn-secondary py-2 rounded-lg text-sm mt-auto w-full group-hover:bg-kivy-accent group-hover:text-white group-hover:border-kivy-accent'; button.innerHTML = '<i class="fa-solid fa-folder-open mr-2"></i> Abrir no Editor';
+            button.onclick = () => { pyrtInput.value = ex.codigo; atualizarTraducao(); mudarAba('editor'); limparTerminal(); };
+            card.append(header, codeBox, button); containerExemplos.appendChild(card);
+        });
+
+        window.onload = () => { atualizarTraducao(); iniciarWorker(); };
+    </script>
+</body>
+</html>
